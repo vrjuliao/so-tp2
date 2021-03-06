@@ -1,2 +1,5 @@
-tp2-files/*
+tp2-files
 TP2.pdf
+build
+bin
+.vscode

@@ -28,7 +28,17 @@ void execute_custom(FILE *input, pagetable *pg);
     4.3 - execute that operation (executed by the algorithm)
   5 - print stats
 */
+
+int help(const char program[]){
+  printf("usage: %s [algoritmo] file.log page_size mem_size\n", program);
+  return 0;
+}
+
 int main (int argc, const char *argv[]){
+
+  if (argc < 5)
+    return help(argv[0]);
+
   // argparser
   features args = {argv[1], argv[2], atoi(argv[3]), atoi(argv[4])};
   
@@ -37,7 +47,7 @@ int main (int argc, const char *argv[]){
   input = fopen(args.input_file, "r");
 
   if(!input){
-    printf("ERROR: Inexistent file %s", args.input_file);
+    printf("ERROR: Inexistent file %s\n", args.input_file);
     exit(1);
   }
 
@@ -74,12 +84,13 @@ int main (int argc, const char *argv[]){
   // 5. TODO: print stats 
   printf("%s - %s - %i - %i \n", args.algorithm, args.input_file, args.page_size, args.table_size);
 
-  return 1;
+  return 0;
 }
 
 void execute_fifo(FILE *input, pagetable *pg){
   char mode;
   uint32_t address;
+  printf(" fifo ");
   while(fscanf(input, "%x %c\n", &address, &mode) != EOF){
 
 
