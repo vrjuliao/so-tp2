@@ -13,10 +13,10 @@
 
 
 
-void execute_fifo(FILE *input, pagetable *pg);
-void execute_lru(FILE *input, pagetable *pg);
-void execute_2a(FILE *input, pagetable *pg);
-void execute_custom(FILE *input, pagetable *pg);
+void execute_fifo(FILE *input, pagetable *table);
+void execute_lru(FILE *input, pagetable *table);
+void execute_2a(FILE *input, pagetable *table);
+void execute_custom(FILE *input, pagetable *table);
 
 /* 
   1 - start the file reader
@@ -55,8 +55,8 @@ int main (int argc, const char *argv[]){
   size_t page_size = kbytes_to_bytes(args.page_size);
   size_t table_size = kbytes_to_bytes(args.table_size);
 
-  pagetable *pg;
-  if (!create_pagetable(pg, table_size, page_size)){
+  pagetable *table;
+  if (!create_pagetable(table, table_size, page_size)){
     printf("ERROR: memory allocation problem");
     exit(1);
   }
@@ -65,13 +65,13 @@ int main (int argc, const char *argv[]){
   void(* aceess_memory)(pagetable*);
     
   if(!strcmp(args.algorithm, alg_fifo))
-    execute_fifo(input, pg);
+    execute_fifo(input, table);
   else if(!strcmp(args.algorithm, alg_lru))
-    execute_lru(input, pg);
+    execute_lru(input, table);
   else if(!strcmp(args.algorithm, alg_2a))
-    execute_2a(input, pg);
+    execute_2a(input, table);
   else if(!strcmp(args.algorithm, alg_custom))
-    execute_custom(input, pg);
+    execute_custom(input, table);
   else {
     printf("ERROR: Inexistent algorithm %s", args.algorithm);
     exit(1);
@@ -80,14 +80,14 @@ int main (int argc, const char *argv[]){
   fclose(input);
 
 
-  
+  free_pagetable(table);
   // 5. TODO: print stats 
   printf("%s - %s - %i - %i \n", args.algorithm, args.input_file, args.page_size, args.table_size);
 
   return 0;
 }
 
-void execute_fifo(FILE *input, pagetable *pg){
+void execute_fifo(FILE *input, pagetable *table){
   char mode;
   uint32_t address;
   printf(" fifo ");
@@ -98,6 +98,6 @@ void execute_fifo(FILE *input, pagetable *pg){
   
 }
 
-void execute_lru(FILE *input, pagetable *pg){}
-void execute_2a(FILE *input, pagetable *pg){}
-void execute_custom(FILE *input, pagetable *pg){}
+void execute_lru(FILE *input, pagetable *table){}
+void execute_2a(FILE *input, pagetable *table){}
+void execute_custom(FILE *input, pagetable *table){}
