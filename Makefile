@@ -21,7 +21,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 all: clean main
 
 clean:
-	$(RM) -rf $(BINDIR) $(OBJDIR) *.gcda *.gcno main main.dSYM
+	$(RM) -rf $(BINDIR) $(OBJDIR) *.gcda *.gcno tp2virtual tp2virtual.dSYM
 
 main: $(OBJECTS)
-	$(CC) $(CFLAGS) $(INC) $(MAIN) $^ -o main
+	$(CC) $(CFLAGS) $(INC) $(MAIN) $^ -o tp2virtual

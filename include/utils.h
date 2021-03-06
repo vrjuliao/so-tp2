@@ -1,5 +1,6 @@
 #ifndef SO_TP2_UTILS
 #define SO_TP2_UTILS
+#include <stddef.h>
 
 #define R 'R'
 #define W 'W'
@@ -14,7 +15,7 @@ typedef struct features {
 
 
 // parse the string-based hexadecimal to integer
-int kbytes_to_bytes(int kbytes);
+size_t kbytes_to_bytes(int kbytes);
 
 
 

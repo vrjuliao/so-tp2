@@ -1,5 +1,5 @@
-#ifndef SO_TP2_UTILS
-#define SO_TP2_UTILS
+#ifndef SO_TP2_PAGE_TABLE
+#define SO_TP2_PAGE_TABLE
 #include <stdlib.h>
 #include <stdint.h>
 
