@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <sys/time.h>
 
 #include "utils.h"
 #include "page_table.h"
+#include "fifo.h"
 
 #define alg_fifo "fifo"
 #define alg_2a "2a"
@@ -13,10 +16,10 @@
 
 
 
-void execute_fifo(FILE *input, pagetable *table);
-void execute_lru(FILE *input, pagetable *table);
-void execute_2a(FILE *input, pagetable *table);
-void execute_custom(FILE *input, pagetable *table);
+stats execute_fifo(FILE *input, pagetable *table, pageptr *page_pointer);
+stats execute_lru(FILE *input, pagetable *table, pageptr *page_pointer);
+stats execute_2a(FILE *input, pagetable *table, pageptr *page_pointer);
+stats execute_custom(FILE *input, pagetable *table, pageptr *page_pointer);
 
 /* 
   1 - start the file reader
@@ -35,7 +38,6 @@ int help(const char program[]){
 }
 
 int main (int argc, const char *argv[]){
-
   if (argc < 5)
     return help(argv[0]);
 
@@ -45,7 +47,6 @@ int main (int argc, const char *argv[]){
   // 1. starting file reader
   FILE *input;
   input = fopen(args.input_file, "r");
-
   if(!input){
     printf("ERROR: Inexistent file %s\n", args.input_file);
     exit(1);
@@ -53,51 +54,94 @@ int main (int argc, const char *argv[]){
 
   // 2. create the page table
   size_t page_size = kbytes_to_bytes(args.page_size);
-  size_t table_size = kbytes_to_bytes(args.table_size);
-
-  pagetable *table;
-  if (!create_pagetable(table, table_size, page_size)){
-    printf("ERROR: memory allocation problem");
+  size_t table_size = ((uint32_t)-1);
+  size_t program_memroy_size = kbytes_to_bytes(args.local_mem)/page_size;
+  
+  pagetable *table = create_pagetable(table_size, page_size);
+  if (!table){
+    printf("ERROR: memory allocation problem\n");
     exit(1);
   }
-  
+  pageptr *page_pointer = create_pageptr(program_memroy_size);
+  if (!page_pointer){
+    printf("ERROR: memory allocation problem\n");
+    free_pagetable(table);
+    exit(1);
+  }
+  // start timer
+  struct timeval t1, t2;
+  gettimeofday(&t1, NULL);
+
   // 3. choose the algorithm
-  void(* aceess_memory)(pagetable*);
-    
-  if(!strcmp(args.algorithm, alg_fifo))
-    execute_fifo(input, table);
-  else if(!strcmp(args.algorithm, alg_lru))
-    execute_lru(input, table);
+  stats execution_stats; 
+  if(!strcmp(args.algorithm, alg_fifo)){
+    execution_stats = execute_fifo(input, table, page_pointer);
+  } else if(!strcmp(args.algorithm, alg_lru))
+    execution_stats = execute_lru(input, table, page_pointer);
   else if(!strcmp(args.algorithm, alg_2a))
-    execute_2a(input, table);
+    execution_stats = execute_2a(input, table, page_pointer);
   else if(!strcmp(args.algorithm, alg_custom))
-    execute_custom(input, table);
+    execution_stats = execute_custom(input, table, page_pointer);
   else {
     printf("ERROR: Inexistent algorithm %s", args.algorithm);
+    free_pagetable(table);
+    free_pageptr(page_pointer);
     exit(1);
   }
-
+  gettimeofday(&t2, NULL);  
   fclose(input);
 
+  // 5. TODO: print stats 
+  double elapsedTime;
+  elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+  elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0; // us to ms
+  print_stats(&args, &execution_stats);
+  printf("Tempo de execucao em segundos: %lf\n", elapsedTime/1000.0);
+  print_table(table, page_pointer);
 
   free_pagetable(table);
-  // 5. TODO: print stats 
-  printf("%s - %s - %i - %i \n", args.algorithm, args.input_file, args.page_size, args.table_size);
-
+  free_pageptr(page_pointer);
   return 0;
 }
 
-void execute_fifo(FILE *input, pagetable *table){
+stats execute_fifo(FILE *input, pagetable *table, pageptr *page_pointer){
   char mode;
-  uint32_t address;
-  printf(" fifo ");
-  while(fscanf(input, "%x %c\n", &address, &mode) != EOF){
+  stats st = {0, 0, 0};
+  uint32_t global_address, address;
+  size_t mem_size = page_pointer->size;
 
+  int last_added = 0;
+  pageattr *p;
+  while(EOF != fscanf(input, "%x %c\n", &global_address, &mode)){
+    st.access++;
+    address = convert_address(table, global_address);
 
+    if(!table->page[address].is_valid){
+      st.page_faults++;
+      if(last_added >= mem_size){
+
+        p = &(table->page[page_pointer->addr[last_added%mem_size]]);
+        if(p->dirty){
+          st.dirty++;
+        }
+        p->is_valid = 0;
+        p->dirty = 0;
+      }
+      table->page[address].is_valid = 1;
+      table->page[address].dirty = 0;
+      page_pointer->addr[last_added%mem_size] = address;
+      last_added++;
+    }
+    p = &table->page[address];
+
+    if(mode == W){
+      p->dirty = 1;
+    }
+    p->last_opetation = mode;
   }
-  
+  return st;
 }
 
-void execute_lru(FILE *input, pagetable *table){}
-void execute_2a(FILE *input, pagetable *table){}
-void execute_custom(FILE *input, pagetable *table){}
+stats execute_lru(FILE *input, pagetable *table, pageptr *page_pointer){}
+stats execute_2a(FILE *input, pagetable *table, pageptr *page_pointer){}
+stats execute_custom(FILE *input, pagetable *table, pageptr *page_pointer){}

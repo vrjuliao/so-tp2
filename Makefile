@@ -25,4 +25,4 @@ clean:
 	$(RM) -rf $(BINDIR) $(OBJDIR) *.gcda *.gcno tp2virtual tp2virtual.dSYM
 
 main: $(OBJECTS)
-	$(CC) $(CFLAGS) $(INC) $(MAIN) $^ -o $(BINDIR)/tp2virtual
+	$(CC) $(CFLAGS) $(INC) $(MAIN) $^ -o tp2virtual
