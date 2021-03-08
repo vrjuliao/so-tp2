@@ -2,4 +2,7 @@ tp2-files
 TP2.pdf
 build
 bin
+tp2virtual*
 .vscode
+test.c
+test

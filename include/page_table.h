@@ -8,6 +8,7 @@ typedef struct pageattr {
   uint8_t dirty;
   uint8_t is_valid;
   char last_opetation;
+  int64_t next, prev;
 } pageattr;
 
 typedef struct pageptr{
@@ -35,5 +36,9 @@ int free_pagetable(pagetable *table);
 int free_pageptr(pageptr *page_pointer);
 
 uint32_t convert_address(pagetable *table, uint32_t old_address);
-
+int valid_page(pagetable* table, uint32_t address);
+int is_dirty(pagetable* table, uint32_t address);
+void remove_page(pagetable *table, uint32_t address);
+void new_page(pagetable *table, uint32_t address, int64_t next_addr);
+void switch_prev_next(pagetable *table, uint32_t address);
 #endif

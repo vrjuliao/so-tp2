@@ -8,29 +8,17 @@
 #include "utils.h"
 #include "page_table.h"
 #include "fifo.h"
+#include "lru.h"
 
 #define alg_fifo "fifo"
 #define alg_2a "2a"
 #define alg_lru "lru"
 #define alg_custom "custom"
 
-
-
 stats execute_fifo(FILE *input, pagetable *table, pageptr *page_pointer);
 stats execute_lru(FILE *input, pagetable *table, pageptr *page_pointer);
 stats execute_2a(FILE *input, pagetable *table, pageptr *page_pointer);
 stats execute_custom(FILE *input, pagetable *table, pageptr *page_pointer);
-
-/* 
-  1 - start the file reader
-  2 - create the pagetable
-  3 - define which algorithm is used to access the memory
-  4 - for each address read from the input
-    4.1 - verify if this address is a page fault, a success or a dirty address.
-    4.2 - compute final stats
-    4.3 - execute that operation (executed by the algorithm)
-  5 - print stats
-*/
 
 int help(const char program[]){
   printf("usage: %s [algoritmo] file.log page_size mem_size\n", program);
@@ -107,32 +95,30 @@ int main (int argc, const char *argv[]){
 stats execute_fifo(FILE *input, pagetable *table, pageptr *page_pointer){
   char mode;
   stats st = {0, 0, 0};
-  uint32_t global_address, address;
+  uint32_t newaddress, oldaddress;
   size_t mem_size = page_pointer->size;
 
-  int last_added = 0;
+  unsigned int last_added = 0;
   pageattr *p;
-  while(EOF != fscanf(input, "%x %c\n", &global_address, &mode)){
+  while(EOF != fscanf(input, "%x %c\n", &newaddress, &mode)){
     st.access++;
-    address = convert_address(table, global_address);
+    newaddress = convert_address(table, newaddress);
 
-    if(!table->page[address].is_valid){
+    if(!valid_page(table, newaddress)){
       st.page_faults++;
       if(last_added >= mem_size){
 
-        p = &(table->page[page_pointer->addr[last_added%mem_size]]);
-        if(p->dirty){
+        oldaddress = page_pointer->addr[last_added%mem_size];
+        if(is_dirty(table, oldaddress)){
           st.dirty++;
         }
-        p->is_valid = 0;
-        p->dirty = 0;
+        remove_page(table, oldaddress);
       }
-      table->page[address].is_valid = 1;
-      table->page[address].dirty = 0;
-      page_pointer->addr[last_added%mem_size] = address;
+      new_page(table, newaddress, 1);
+      page_pointer->addr[last_added%mem_size] = newaddress;
       last_added++;
     }
-    p = &table->page[address];
+    p = &table->page[newaddress];
 
     if(mode == W){
       p->dirty = 1;
@@ -142,6 +128,65 @@ stats execute_fifo(FILE *input, pagetable *table, pageptr *page_pointer){
   return st;
 }
 
-stats execute_lru(FILE *input, pagetable *table, pageptr *page_pointer){}
+stats execute_lru(FILE *input, pagetable *table, pageptr *page_pointer){
+  char mode;
+  stats st = {0, 0, 0};
+  uint32_t newaddress, last, first, tmp;
+  size_t mem_size = page_pointer->size;
+  
+  if(EOF != fscanf(input, "%x %c\n", &newaddress, &mode)){
+    st.access++;
+    first = convert_address(table, newaddress);
+    last = first;
+    new_page(table, first, -1);
+  }
+
+  unsigned int qtt = 0;
+  pageattr *p;
+  while(EOF != fscanf(input, "%x %c\n", &newaddress, &mode)){
+    st.access++;
+    newaddress = convert_address(table, newaddress);
+
+    if(!valid_page(table, newaddress)){
+      st.page_faults++;
+      if(qtt >= mem_size){
+        if(is_dirty(table, last)){
+          st.dirty++;
+        }
+        tmp = table->page[last].prev;
+        remove_page(table, last);
+        last = tmp;
+      }
+      new_page(table, newaddress, first);
+      first = newaddress;
+      qtt++;
+    } else if (newaddress != first){
+      
+      switch_prev_next(table, newaddress);
+      table->page[first].prev = newaddress;
+      table->page[newaddress].next = first;
+      
+      first = newaddress;
+      if(newaddress == last && table->page[newaddress].prev != -1)
+        last = table->page[newaddress].prev;
+    }
+    p = &table->page[newaddress];
+
+    if(mode == W){
+      p->dirty = 1;
+    }
+    p->last_opetation = mode;
+  }
+
+  uint32_t current = first;
+  for(int i=0; i<mem_size; i++){
+    page_pointer->addr[i] = current;
+    current = table->page[current].next;
+  }
+
+  return st;
+}
+
+
 stats execute_2a(FILE *input, pagetable *table, pageptr *page_pointer){}
 stats execute_custom(FILE *input, pagetable *table, pageptr *page_pointer){}
