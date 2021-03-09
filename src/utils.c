@@ -7,8 +7,8 @@ size_t kbytes_to_bytes(int kbytes){
 
 void print_stats(features *ft, stats *st){
   printf("Arquivo de entrada: %s\n", ft->input_file);
-  printf("Tamanho da memoria: %i\n", ft->local_mem);
-  printf("Tamanho das páginas: %i\n", ft->page_size);
+  printf("Tamanho da memoria: %i KB\n", ft->local_mem);
+  printf("Tamanho das páginas: %i KB\n", ft->page_size);
   printf("Tecnica de reposicao: %s\n", ft->algorithm);
   printf("Total de acessos a memoria: %i\n", st->access);
   printf("Leituras com page faults: %i\n", st->page_faults);
@@ -24,7 +24,7 @@ void print_table(pagetable *table, pageptr *page_pointer){
     addr = page_pointer->addr[i];
     op = table->page[addr].last_opetation;
     dirty = table->page[addr].dirty;
-    printf("    %08X       |       %c         |  %i\n", addr, op, dirty);
+    printf("    0x%08x     |       %c         |  %i\n", addr<<table->offset, op, dirty);
   }
 
 }

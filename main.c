@@ -7,8 +7,6 @@
 
 #include "utils.h"
 #include "page_table.h"
-#include "fifo.h"
-#include "lru.h"
 
 #define alg_fifo "fifo"
 #define alg_2a "2a"
@@ -187,6 +185,79 @@ stats execute_lru(FILE *input, pagetable *table, pageptr *page_pointer){
   return st;
 }
 
+stats execute_2a(FILE *input, pagetable *table, pageptr *page_pointer){
+  char mode;
+  stats st = {0, 0, 0};
+  uint32_t newaddress, oldaddress;
+  size_t mem_size = page_pointer->size;
 
-stats execute_2a(FILE *input, pagetable *table, pageptr *page_pointer){}
-stats execute_custom(FILE *input, pagetable *table, pageptr *page_pointer){}
+  uint64_t last_added = 0;
+  pageattr *p;
+  while(EOF != fscanf(input, "%x %c\n", &newaddress, &mode)){
+    st.access++;
+    newaddress = convert_address(table, newaddress);
+
+    if(!valid_page(table, newaddress)){
+      st.page_faults++;
+      if(last_added >= mem_size){
+        p = &table->page[page_pointer->addr[last_added%mem_size]];
+        while(p->is_valid > 1){
+          last_added++;
+          p->is_valid--;
+          p = &table->page[page_pointer->addr[last_added%mem_size]];
+        }
+
+        oldaddress = page_pointer->addr[last_added%mem_size];
+        if(is_dirty(table, oldaddress)){
+          st.dirty++;
+        }
+        remove_page(table, oldaddress);
+      }
+      new_page(table, newaddress, 1);
+      page_pointer->addr[last_added%mem_size] = newaddress;
+      last_added++;
+    }
+    p = &table->page[newaddress];
+
+    if(mode == W){
+      p->dirty = 1;
+    }
+    table->page[newaddress].is_valid = 2;
+    p->last_opetation = mode;
+  }
+  return st;
+}
+
+stats execute_custom(FILE *input, pagetable *table, pageptr *page_pointer){
+  char mode;
+  stats st = {0, 0, 0};
+  uint32_t newaddress, oldaddress, virtual_address;
+  size_t mem_size = page_pointer->size;
+
+  pageattr *p;
+  while(EOF != fscanf(input, "%x %c\n", &newaddress, &mode)){
+    st.access++;
+    newaddress = convert_address(table, newaddress);
+
+    if(!valid_page(table, newaddress)){
+      st.page_faults++;
+      
+      // it works only if mem_size is a number in pow2 sequence.
+      virtual_address = newaddress & (mem_size-1);
+      oldaddress = page_pointer->addr[virtual_address];
+      if(is_dirty(table, oldaddress)){
+        st.dirty++;
+      }
+      remove_page(table, oldaddress);
+      new_page(table, newaddress, 1);
+      page_pointer->addr[virtual_address] = newaddress;
+    }
+    p = &table->page[newaddress];
+
+    if(mode == W){
+      p->dirty = 1;
+    }
+    p->last_opetation = mode;
+  }
+  return st;
+}
