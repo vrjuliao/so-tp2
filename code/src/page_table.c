@@ -9,8 +9,6 @@ pagetable *create_pagetable(size_t tablesize, size_t pagesize){
   if(!table) return NULL;
   
   int num_of_pages = tablesize/pagesize;
-  
-
   table->page = (pageattr*)malloc(num_of_pages*sizeof(pageattr));
   if (!table->page){
     free(table);
@@ -40,14 +38,15 @@ pagetable *create_pagetable(size_t tablesize, size_t pagesize){
 }
 
 pageptr *create_pageptr(size_t program_memory){
-
   pageptr *p = (pageptr*)malloc(sizeof(pageptr));
   if(!p)
     return NULL;
 
   p->addr = (uint32_t*)malloc(program_memory*sizeof(pageptr));
-  if (!p->addr)
+  if (!p->addr){
+    free(p);
     return NULL;
+  }
 
   p->size = program_memory;
 
@@ -83,7 +82,6 @@ void remove_page(pagetable *table, uint32_t address){
   switch_prev_next(table, address);
   table->page[address].next = -1;
   table->page[address].prev = -1;
-
 }
 
 void new_page(pagetable *table, uint32_t address, int64_t next_addr){

@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include "page_table.h"
 
 #define R 'R'
@@ -23,6 +25,9 @@ typedef struct stats {
 
 // parse the string-based hexadecimal to integer
 size_t kbytes_to_bytes(int kbytes);
+
+// read file line-by-line until find the correct pattern
+int read_input_from_file(FILE *input, uint32_t *address, char *mode);
 
 void print_stats(features *ft, stats *st);
 void print_table(pagetable *table, pageptr *page_pointer);
