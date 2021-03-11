@@ -1,0 +1,113 @@
+ \documentclass[10pt]{extarticle}
+
+%SOME USEFUL PACKAGES
+\usepackage[portuguese]{babel}
+\usepackage{extsizes}
+\usepackage[reqno]{amsmath} % equation numbers on the right
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amscd}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{dsfont}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage[margin=1in]{geometry}
+\usepackage[hypcap]{caption}
+\usepackage{longtable}
+\usepackage{etoolbox}
+%\usepackage[alf]{abntex2cite}
+\usepackage[siunitx]{circuitikz}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{indentfirst}
+
+%HEADER
+\pagestyle{fancy}\lhead{Vinícius Julião Ramos} \rhead{DCC605 - Sistemas Operacionais - 2020.2}
+\chead{{\large{\bf }}} \lfoot{} \rfoot{\bf \thepage} 
+\cfoot{}
+
+
+\title{ \textsc{Universidade Federal de Minas Gerais} \\
+\textsc{Departamentode Ciência da Computação} \\
+\bigskip TP2 -- Simulação de um sistema de memória virtual}
+
+\author{Vinícius Julião Ramos \\ \normalsize{viniciusjuliao@dcc.ufmg.br}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+O trabalho aqui apresentado consiste na elaboração de algoritmos de
+reposição para tabela de páginas.
+Tais algoritmos funcionarão num ambiente simulado, no qual serão dados: o
+tamanho total da tabela, o tamanho de cada página e  uma lista de endereços de
+que representam acessos à memória.
+Sendo assim, a partir de tais acessos, os algoritmos implementados terão o
+trabalho de validar determinado endereço encontra-se disponível.
+Em caso negativo, há a necessidade de tornar aquele endereço disponível e
+isso pode levar à exclusão de alguma outra página (alocada anteriormente),
+uma vez que há uma limitação de espaço.
+Quatro algoritmos foram desenvolvidos e tiveram seus desempenhos comparados,
+sendo que um, dentre estes quatro, foi proposto pelo aluno.
+Os outros três métodos de reposição desenvolvidos por este trabalho foram dados
+apresentados pela especificação.
+\end{abstract}
+    
+\section{Introdução}
+\input{introduction.tex}
+\newpage
+
+\section{Modelagem e Decisões de Projeto}
+\input{modeling.tex}
+% \newpage
+
+\section{Algoritmo de Substituição Próprio}
+\input{custom_algorithm.tex}
+% \newpage
+
+\section{Análise Experimental}
+\input{experimental_analysis.tex}
+
+% \section{Conclusão}
+% \input{conclusion.tex}
+
+% \begin{thebibliography}{9}
+
+% \bibitem{cplusplus}
+%     http://www.cplusplus.com 27 nov. 2019
+    
+% \bibitem{book:DFS}
+%     Jon Kleinberg, Eva Tardos. 2006. \textit{Algorithm Design} (1st Edition, p 83). Pearson - Addison Wesley.
+    
+% \bibitem{book:BFS}
+%     Jon Kleinberg, Eva Tardos. 2006. \textit{Algorithm Design} (1st Edition, p 79). Pearson - Addison Wesley.
+
+% \bibitem{book:DAG}
+%     Jon Kleinberg, Eva Tardos. 2006. \textit{Algorithm Design} (1st Edition, p 99 - 101). Pearson - Addison Wesley.
+    
+% \bibitem{cpp:vector}
+%     http://www.cplusplus.com/reference/vector/vector 27 nov. 2019
+    
+% \bibitem{cpp:stack}
+%     http://www.cplusplus.com/reference/stack/stack 27 nov. 2019
+    
+% \bibitem{cpp:iostream}
+%     http://www.cplusplus.com/reference/iostream 27 nov. 2019
+    
+% \bibitem{cpp:chronos}
+%     http://www.cplusplus.com/reference/chrono 27 nov. 2019
+% \end{thebibliography}
+\end{document}

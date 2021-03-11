@@ -1,0 +1,56 @@
+O algoritmo de substituição proposto por esse trabalho, foi baseado na criação
+de um \textit{hashing} de endereços.
+Dentre os argumentos recebidos pelo programa, temos a quantidade de memória
+disponível ($q$) e o tamanho de cada página ($k$).
+Então, sendo $l = q\div k$ a quantidade de páginas gerenciadas pelos métodos
+de substituição, aplicamos uma função que mapeia qualquer endereço para um
+número entre $0$ e $l-1$.
+Assim, o método de substituição criado por esse trabalho, trabalhará com a
+quantidade correta de páginas.
+Esse hashing acontece de modo a aplicar uma operação booleana \textit{and}
+bit a bit, entre o endereço da página requisitada e $l-1$.
+Como $l$ será sempre um valor em potência de 2, temos que $l-1$, quando
+transformado para a base 2, é um número preenchido apenas com 1.
+
+Dessa maneira o hashing obtém os bits menos significativos do endereço de uma
+página e assim, pode-se consultar nesse array de $l$ endereços, se determinada
+página requisitada já está na memória ou não.
+É importante informar que essa operação booleana é aplicada sobre o endereço
+da página, ou seja, o endereço dado no arquivo de entrada passa por uma
+transformação de shifting e assim é obtido o endereço da página, e só depois
+disso aplica-se a operação \textit{and} bit a bit com $l-1$.
+O hashing se dá da seguinte maneira:
+
+\begin{algorithm}
+    \caption{Hashing Transformation}\label{alg:transformation}
+    \begin{algorithmic}[1]
+    \Function{Hashing Transformation}{$Page\ Address\ PAddr, Pages\ Quantity\ l$}
+        
+    \Return $PAddr\ \&\&\ (l-1)$   
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Para melhor esclarecer, observe o seguinte exemplo:
+Dada um programa com uma quantidade de memória disponível igual a 128 Kilo
+Bytes, em que cada página possui 8 Kilo Bytes de memória disponível.
+Nesse caso, teremos então $128 \div 8 = 16$ elementos na tabela de páginas,
+logo $l = 16$.
+Então suponha que o programa deseje acessar uma página $x$ em que o valor
+decimal do endereço será $550$.
+Portanto, dado um array $A$ que armazena os endereços das páginas disponíveis
+na memória, em que o tamanho de $A$ é igual a $l$, poderemos mapear qualquer
+endereço de página para uma posição em $A$ através da operação booleana
+previamente citada.
+Observe o mapeamento da página $x$:
+$$
+\langle\textit{and}\rangle\frac{x\ \ \rightarrow 550_{10}\ = 1000100110_2}{l-1 \rightarrow 15_{10} = 0000001111_2}
+= 0000000110_2 = 12_{10}
+$$
+
+Por fim, a página de que tem o endereço igual a 550 será armazenada no índice
+12 do vetor $A$, sendo que este vetor é indexado com o primeiro elemento na
+posição 0.
+Para executar o algoritmo criado por este trabalho, o argumento de execução
+que contem o nome do método de reposição a ser executado dever ser 
+\texttt{custom}.

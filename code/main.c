@@ -78,7 +78,7 @@ int main (int argc, const char *argv[]){
   gettimeofday(&t2, NULL);  
   fclose(input);
 
-  // 5. printing stats 
+  // 4. printing stats 
   double elapsedTime;
   elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
   elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0; // us to ms

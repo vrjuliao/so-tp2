@@ -1,0 +1,36 @@
+Sistemas operacionais, precisam prover acesso à memória para os diversos
+programas em execução.
+Porém, memória é um recurso limitado e que deve ser gerenciado de maneira a
+atender todos os processos em execução.
+Essa tarefa necessita de um mecanismo capaz de realizar tal controle,
+permitindo que programas acessem à memória e também ao disco, entretanto
+abstraindo do processo em execução a necessidade de identificar se determinado
+endereço de memória está no disco ou na memória volátil da máquina.
+Tal função é conhecida como virtualização de memória e nisso encontra-se a
+necessidade de um algoritmo que crie uma tabela na qual liste as páginas que um
+processo possui armazenadas em memória, ou em disco.
+Essa tabela possui um espaço limitado, então se um endereço (virtual)
+encontra-se em disco, cabe ao mecanismo de virtualização a busca desses dados e
+a colocação na memória física.
+
+Quando determinado programa já ocupou todo o espaço reservado para a própria
+execução, é necessário iniciar o salvamento dos dados em disco.
+Essa ação leva à necessidade de realizar trocas entre o disco e a memória
+volátil; sendo que o responsável pela troca é o algoritmo de reposição.
+Por fim, para este trabalho, foi proposto o desenvolvimento de quatro
+algoritmos de reposição: \textit{LRU}, \textit{Second Chance}, \textit{FIFO}
+e um quarto algoritmo \textit{Custom}, que seria proposto pelo próprio aluno.
+Dado o ambiente virtual do trabalho, tomaremos métricas diferentes do tempo de
+execução para avaliar o desempenho de cada um dos métodos.
+O ambiente simulado não executa leitura e escrita em disco assim como acontece
+no ambiente real, portanto, aqui o tempo não é um grande fator de impacto.
+Logo, as métricas avaliadas consistem na quantidade de páginas não encontradas
+na memória volátil (\textit{page-faults}) e a quantidade de páginas sujas 
+(\textit{dirty}) -- tais métricas identificam a quantidade de leituras e
+escritas feitas no disco, respectivamente.
+
+Os códigos apresentados por esse trabalho foram desenvolvidos na linguagem C e
+testados no sistema operacional Ubuntu 16.04 e 18.04.
+Uma vez que a linguagem permite a criação de tipos abstratos de dados, tal
+conceito fora aplicado para instanciar as entidades necessárias no controle dos
+métodos de substituição.

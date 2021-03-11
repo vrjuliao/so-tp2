@@ -6,3 +6,10 @@ tp2virtual*
 .vscode
 test.c
 test
+
+# latex tmp files
+main.aux
+main.fdb_latexmk
+main.log
+main.synctex.gz
+main.fls
